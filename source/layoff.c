@@ -6,7 +6,7 @@ char id[16];
 Result layoffInitialize(char identifier[16])
 {
     strcpy(id, identifier);
-    return smGetService(&layoff_srv, "layoff:n");
+    return smGetService(&layoff_srv, "layoff");
 }
 
 Result pushNotification(char contents[64])

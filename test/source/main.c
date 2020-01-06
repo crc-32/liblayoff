@@ -19,7 +19,8 @@ int main(int argc, char* argv[])
 
     // Other initialization goes here. As a demonstration, we print hello world.
     printf("Press A to send test notification\n");
-    printf("%x\n", layoffInitialize());
+    Result rc = layoffInitialize();
+    printf("%x\n", rc);
 
     // Main loop
     while (appletMainLoop())

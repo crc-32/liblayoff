@@ -16,7 +16,7 @@ typedef struct {
     char message[64];
 }SimpleNotification;
 
-Result layoffInitialize();
+Result layoffInitialize(char identifier[16]);
 Result pushNotification(char message[64]);
 void layoffExit();
 

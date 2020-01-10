@@ -19,8 +19,8 @@ int main(int argc, char* argv[])
 
     // Other initialization goes here. As a demonstration, we print hello world.
     printf("Press A to send test notification\n");
-    Result rc = layoffInitialize();
-    printf("%x\n", rc);
+    Result rc = layoffInitialize("lib-test");
+    printf("layoffInitialize(): %x\n", rc);
 
     // Main loop
     while (appletMainLoop())
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
         if (kDown & KEY_PLUS)
             break; // break in order to return to hbmenu
         else if (kDown & KEY_A)
-            printf("%x\n", pushNotification("Hello World!"));
+            printf("Sent a hello world, response: %x\n", pushNotification("Hello World!"));
 
         // Your code goes here
 

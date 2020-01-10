@@ -5,7 +5,7 @@ char id[16];
 
 Result layoffInitialize(char identifier[16])
 {
-    strcpy(id, identifier);
+    memcpy(id, identifier, sizeof(id) - 1);
     return smGetService(&layoff_srv, "layoff");
 }
 

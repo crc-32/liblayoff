@@ -7,3 +7,6 @@ test/build
 test/*.elf
 test/*.nacp
 test/*.nro
+*.o
+*.d
+*.map

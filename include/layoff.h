@@ -16,8 +16,8 @@ typedef struct {
     char message[64];
 }SimpleNotification;
 
-Result layoffInitialize(char identifier[16]);
-Result pushNotification(char message[64]);
+Result layoffInitialize(const char identifier[16]);
+Result pushNotification(const char message[64]);
 void layoffExit();
 
 #ifdef __cplusplus

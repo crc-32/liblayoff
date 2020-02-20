@@ -1,19 +1,19 @@
 #include <layoff.h>
 #include <string.h>
-Service layoff_srv;
-char id[16];
+static Service layoff_srv;
+static char identifier[16];
 
-Result layoffInitialize(char identifier[16])
+Result layoffInitialize(const char id[16])
 {
-    memcpy(id, identifier, sizeof(id) - 1);
+    strncpy(identifier, id, sizeof(identifier));
     return smGetService(&layoff_srv, "layoff");
 }
 
-Result pushNotification(char contents[64])
+Result pushNotification(const char contents[64])
 {
     SimpleNotification notif;
-    strcpy(notif.identifier, id);
-    strcpy(notif.message, contents);
+    strncpy(notif.identifier, identifier, sizeof(notif.identifier));
+    strncpy(notif.message, contents, sizeof(notif.message));
     return serviceDispatchIn(&layoff_srv, LayoffCmdId_NotifySimple, notif);
 }
 

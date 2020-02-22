@@ -10,3 +10,5 @@ test/*.nro
 *.o
 *.d
 *.map
+*.user
+x64

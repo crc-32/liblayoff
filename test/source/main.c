@@ -73,9 +73,9 @@ int main(int argc, char* argv[])
 			const u32 sz = sizeof(LayoffUIButtonList) + sizeof(LayoffName) * 3;
 			LayoffUIButtonList* buttons = malloc(sz);
 			buttons->ButtonCount = 3;
-			strcpy(buttons->data[0].name, "first");
-			strcpy(buttons->data[1].name, "second");
-			strcpy(buttons->data[2].name, "third");
+			strcpy(buttons->data[0].str, "first");
+			strcpy(buttons->data[1].str, "second");
+			strcpy(buttons->data[2].str, "third");
 
 			printf("response: %x\n", layoffPushUIPanel(header, buttons, sz));
 			

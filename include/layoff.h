@@ -10,8 +10,7 @@ enum LayoffCmdId{
     LayoffCmdId_NotifySimple = 1,
 	LayoffCmdId_NotifyEx = 2,
 
-	LayoffCmdId_RegisterClient = 3,
-	LayoffCmdId_UnregisterClient = 4,
+	LayoffCmdId_SetClientName = 3,
 	LayoffCmdId_PushUIPanel = 5,
 	LayoffCmdId_GetUIState = 6,
 	LayoffCmdId_AcquireUiEvent = 7
@@ -21,8 +20,8 @@ typedef u32 LayoffIdentifier;
 
 typedef struct 
 {
-	char name[16];
-} LayoffName;
+	char str[16];
+} PACKED LayoffName;
 
 typedef struct {
 	LayoffName name;
@@ -45,7 +44,6 @@ typedef enum {
 
 typedef struct 
 {
-	LayoffIdentifier client;
 	LayoffIdentifier panelID;
 	LayoffUIKind kind;
 	LayoffEncoding encoding;

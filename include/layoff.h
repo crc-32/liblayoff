@@ -13,7 +13,8 @@ enum LayoffCmdId{
 	LayoffCmdId_SetClientName = 3,
 	LayoffCmdId_PushUIPanel = 5,
 	LayoffCmdId_GetUIState = 6,
-	LayoffCmdId_AcquireUiEvent = 7
+	LayoffCmdId_AcquireUiEvent = 7,
+	LayoffCmdId_GetLastUiEvent = 8,
 };
 
 typedef u32 LayoffIdentifier;
@@ -68,6 +69,7 @@ Result layoffInitialize(const char identifier[16]);
 Result layoffNotifySimple(const char message[64]);
 
 Result layoffPushUIPanel(LayoffUIHeader UIData, const void* data, u32 blockLen);
+Result layoffAcquireUIEvent(Event* event);
 Result layoffGetLastUIEvent(LayoffUIEvent* event);
 
 void layoffExit();

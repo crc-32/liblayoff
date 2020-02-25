@@ -33,6 +33,10 @@ int main(int argc, char* argv[])
 
 	srand(time(NULL));
 
+	Event evt;
+	rc = layoffAcquireUIEvent(&evt);
+	printf("acquireUIEvent(): %x\n", rc);
+
     // Main loop
     while (appletMainLoop())
     {
@@ -83,13 +87,12 @@ int main(int argc, char* argv[])
 		}
 		else if (kDown & KEY_L)
 		{
+			eventWait(&evt, UINT64_MAX);
 			LayoffUIEvent event;
-			do {
-				layoffGetLastUIEvent(&event);
-				svcSleepThread(3E+8);
-			} while (!event.panel);
+			printf("response: %x\n", layoffGetLastUIEvent(&event));
 			printf("Last event is from pane : %d\n", event.panel);
-			printf("Button %d was pressed\n", event.data1 + 1);
+			if (event.panel)
+				printf("Button %d was pressed\n", event.data1 + 1);
 		}
 		else if (kDown & KEY_R)
 		{
@@ -111,9 +114,6 @@ int main(int argc, char* argv[])
 			printf("response: %x\n", layoffPushUIPanel(header, NULL, 0));
 		}
 
-        // Your code goes here
-
-        // Update the console, sending a new frame to the display
         consoleUpdate(NULL);
     }
 

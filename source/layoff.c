@@ -29,9 +29,23 @@ Result layoffPushUIPanel(LayoffUIHeader UIHeader, const void* data, u32 blockLen
 	);
 }
 
-Result layoffGetLastUIEvent(LayoffUIEvent* out_evt)
+Result layoffAcquireUIEvent(Event* evt)
 {
-	return serviceDispatchOut(&layoff_srv, LayoffCmdId_AcquireUiEvent, *out_evt);;
+	Handle event = INVALID_HANDLE;
+	Result rc = serviceDispatch(&layoff_srv, LayoffCmdId_AcquireUiEvent,
+		.out_handle_attrs = { SfOutHandleAttr_HipcCopy },
+		.out_handles = &event
+	);
+
+	if (R_SUCCEEDED(rc))
+		eventLoadRemote(evt, event, true);
+
+	return rc;
+}
+
+Result layoffGetLastUIEvent(LayoffUIEvent* event)
+{
+	return serviceDispatchOut(&layoff_srv, LayoffCmdId_GetLastUiEvent, *event);
 }
 
 void layoffExit()

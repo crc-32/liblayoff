@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\layoff.h" />
+    <ClInclude Include="include\layoffUI.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />

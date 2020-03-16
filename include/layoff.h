@@ -33,28 +33,40 @@ typedef enum {
 	LayoffUIKind_None = 0,
 	LayoffUIKind_TextBlock = 1,
 	LayoffUIKind_ButtonList = 2,
+	LayoffUIKind_ComboBox = 3,
+	LayoffUIKind_CheckBoxList = 4,
+	LayoffUIKind_RadioButtonList = 5,
 	//TODO:
 	// combo box
 	// check box
 	// more ?
 } LayoffUIKind;
 
+//TODO: Not sure about keeping this in the API, do we really need non-ascci support ?
 typedef enum {
 	LayoffEncoding_ASCII = 0,
 } LayoffEncoding;
 
 typedef struct 
 {
-	LayoffIdentifier panelID;
+	LayoffIdentifier panelID; //Must be > 0
 	LayoffUIKind kind;
 	LayoffEncoding encoding;
 } PACKED LayoffUIHeader;
 
-typedef struct 
+typedef struct
 {
-	u8 ButtonCount;
+	u8 count;
 	LayoffName data[];
 } PACKED LayoffUIButtonList;
+typedef LayoffUIButtonList LayoffUICheckBoxList;
+typedef LayoffUIButtonList LayoffUIRadioButtonList;
+
+typedef struct
+{
+	LayoffName label;
+	LayoffUIButtonList entries;
+} PACKED LayoffUIComboBox;
 
 typedef struct
 {
@@ -68,7 +80,7 @@ typedef struct
 Result layoffInitialize(const char identifier[16]);
 Result layoffNotifySimple(const char message[64]);
 
-Result layoffPushUIPanel(LayoffUIHeader UIData, const void* data, u32 blockLen);
+Result layoffPushUIPanel(LayoffUIHeader UIData, const void* payload, u32 blockLen);
 Result layoffAcquireUIEvent(Event* event);
 Result layoffGetLastUIEvent(LayoffUIEvent* event);
 

@@ -1,54 +1,52 @@
-// Include the most common headers from the C standard library
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-// Include the main libnx system header, for Switch development
 #include <switch.h>
 #include <layoff.h>
+#include <layoffUI.h>
 
 char somestringBuf[200];
 
-// Main program entrypoint
 int main(int argc, char* argv[])
 {
-    // This example uses a text console, as a simple way to output text to the screen.
-    // If you want to write a software-rendered graphics application,
-    //   take a look at the graphics/simplegfx example, which uses the libnx Framebuffer API instead.
-    // If on the other hand you want to write an OpenGL based application,
-    //   take a look at the graphics/opengl set of examples, which uses EGL instead.
     consoleInit(NULL);
 
-    // Other initialization goes here. As a demonstration, we print hello world.
-	printf("Press A to send test notification\n");
-	printf("Press B to send a text control\n");
-	printf("Press Y to send a button list\n");
-	
-	printf("Press X to remove all controls\n");
-	printf("Press L to to wait for a remote input\n");
-	printf("Press R to to check for a remote input\n");
+	printf(
+		"liblayoff example:\n\n"
+		"Notifications:\n"
+		"Press A to send test notification\n"
+		"\nControls:\n"
+		"Press B to send a text block\n"
+		"Press Y to send a button list\n"
+		"Press DPAD_LEFT to send a checkbox list\n"
+		"Press DPAD_UP to send a radiobutton list\n"
+		"Press DPAD_RIGHT to send a combobox\n"
+		"Press X to remove all controls\n"
+		"\nEvents\n:"
+		"Press L to to wait for a remote input\n"
+		"Press R to to check for a remote input\n"
+		"Press - to continuously wait for remote input\n"
+		"\nPress start to quit.\n"
+	);
     
 	Result rc = layoffInitialize("lib-test");
     printf("layoffInitialize(): %x\n", rc);
 
 	srand(time(NULL));
 
+	//This is not necessary, if you're not going to read it don't acquire it
 	Event evt;
 	rc = layoffAcquireUIEvent(&evt);
 	printf("acquireUIEvent(): %x\n", rc);
 
-    // Main loop
     while (appletMainLoop())
     {
-        // Scan all the inputs. This should be done once for each frame
         hidScanInput();
 
-        // hidKeysDown returns information about which buttons have been
-        // just pressed in this frame compared to the previous one
         u64 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
 
         if (kDown & KEY_PLUS)
-            break; // break in order to return to hbmenu
+            break; //Quit on purpose without disposing panes to test client disconnect detection
 		else if (kDown & KEY_A)
 		{
 			snprintf(somestringBuf, sizeof(somestringBuf), "Hello world! %d", rand() % 100);
@@ -61,29 +59,85 @@ int main(int argc, char* argv[])
 				rand() % 100, rand() % 100, rand() % 100, rand() % 100);
 
 			LayoffUIHeader header;
-			header.kind = LayoffUIKind_TextBlock;
-			header.panelID = 1;
-			header.encoding = LayoffEncoding_ASCII;
+			//Panels are sorted based on they panelID, 0 is not a valid value
+			layoffInitializeUIHeader(&header, 1, LayoffUIKind_TextBlock);
 
+			//For LayoffUIKind_TextBlock the payload is just the ASCII null-terminated string
 			printf("response: %x\n", layoffPushUIPanel(header, somestringBuf, strlen(somestringBuf) + 1));
 		}
 		else if (kDown & KEY_Y)
 		{
 			LayoffUIHeader header;
-			header.kind = LayoffUIKind_ButtonList;
-			header.panelID = 2;
-			header.encoding = LayoffEncoding_ASCII;
+			LayoffUIButtonList* payload = NULL;
 
-			const u32 sz = sizeof(LayoffUIButtonList) + sizeof(LayoffName) * 3;
-			LayoffUIButtonList* buttons = malloc(sz);
-			buttons->ButtonCount = 3;
-			strcpy(buttons->data[0].str, "first");
-			strcpy(buttons->data[1].str, "second");
-			strcpy(buttons->data[2].str, "third");
+			//Note that internally imgui uses the label to identify the control, this means that having two labels that have the same value in different panels will break.
+			//TODO: work on a fix, currently workaround adding #1 according to imgui docs
+			u32 payloadSize = layoffNewButtonList(&header, 2, &payload, 3, "first1", "second2", "third3");
+			if (!payloadSize)
+			{
+				printf("Error !");
+			}
+			else
+			{
+				printf("response: %x\n", layoffPushUIPanel(header, payload, payloadSize));
+				layoffFreeButtonList(payload);
+			}
 
-			printf("response: %x\n", layoffPushUIPanel(header, buttons, sz));
-			
-			free(buttons);
+			//For performance reasons it's possible to manually generate or modify the payload:
+				//const u32 sz = sizeof(LayoffUIButtonList) + sizeof(LayoffName) * 3;
+				//LayoffUIButtonList* buttons = malloc(sz);
+				//buttons->count = 3;
+				//strcpy(buttons->data[0].str, "first");
+				//strcpy(buttons->data[1].str, "second");
+				//strcpy(buttons->data[2].str, "third");
+		}
+		else if (kDown & KEY_DUP)
+		{
+			LayoffUIHeader header;
+			LayoffUICheckBoxList* payload;
+
+			u32 payloadSize = layoffNewRadioButtonList(&header, 3, &payload, 4, "BUG #23", "BUG #34", "BUG #14", "BUG #12");
+			if (!payloadSize)
+			{
+				printf("Error !");
+			}
+			else
+			{
+				printf("response: %x\n", layoffPushUIPanel(header, payload, payloadSize));
+				layoffFreeRadioButtonList(payload);
+			}
+		}
+		else if (kDown & KEY_DLEFT)
+		{
+			LayoffUIHeader header;
+			LayoffUICheckBoxList* payload;
+
+			u32 payloadSize = layoffNewCheckboxList(&header, 4, &payload, 4, "first", "second", "third", "fourth");
+			if (!payloadSize)
+			{
+				printf("Error !");
+			}
+			else
+			{
+				printf("response: %x\n", layoffPushUIPanel(header, payload, payloadSize));
+				layoffFreeCheckBoxList(payload);
+			}
+		}
+		else if (kDown & KEY_DRIGHT)
+		{
+			LayoffUIHeader header;
+			LayoffUIComboBox* payload;
+
+			u32 payloadSize = layoffNewComboBox(&header, 5, &payload, "ComboBox test", 4, "first", "second", "third", "fourth4");
+			if (!payloadSize)
+			{
+				printf("Error !");
+			}
+			else
+			{
+				printf("response: %x\n", layoffPushUIPanel(header, payload, payloadSize));
+				layoffFreeComboBox(payload);
+			}
 		}
 		else if (kDown & KEY_L)
 		{
@@ -92,7 +146,7 @@ int main(int argc, char* argv[])
 			printf("response: %x\n", layoffGetLastUIEvent(&event));
 			printf("Last event is from pane : %d\n", event.panel);
 			if (event.panel)
-				printf("Button %d was pressed\n", event.data1 + 1);
+				printf("Event data is %lx %lx\n", event.data1, event.data2);
 		}
 		else if (kDown & KEY_R)
 		{
@@ -100,18 +154,51 @@ int main(int argc, char* argv[])
 			printf("response: %x\n", layoffGetLastUIEvent(&event));
 			printf("Last event is from pane : %d\n", event.panel);
 			if (event.panel)
-				printf("Button %d was pressed\n", event.data1 + 1);
+				printf("Event data is %lx %lx\n", event.data1, event.data2);
 		}
 		else if (kDown & KEY_X)
+		{			
+			//Doesn't matter if one of these doesn't currently exist
+			printf("response: %x\n", layoffRemoveUIPanel(1));
+			printf("response: %x\n", layoffRemoveUIPanel(2));
+			printf("response: %x\n", layoffRemoveUIPanel(3));
+			printf("response: %x\n", layoffRemoveUIPanel(4));
+			printf("response: %x\n", layoffRemoveUIPanel(5));
+			printf("response: %x\n", layoffRemoveUIPanel(6));
+		}
+		else if (kDown & KEY_MINUS)
 		{
 			LayoffUIHeader header;
-			header.kind = LayoffUIKind_None;
-			header.panelID = 1;
+			LayoffUIButtonList* payload = NULL;
 
-			printf("response: %x\n", layoffPushUIPanel(header, NULL, 0));
+			u32 payloadSize = layoffNewButtonList(&header, 10, &payload, 1, "STOP");
+			if (!payloadSize)
+			{
+				printf("Error !");
+			}
+			else
+			{
+				printf("Push STOP button: %x\n", layoffPushUIPanel(header, payload, payloadSize));
+				layoffFreeButtonList(payload);
 
-			header.panelID = 2;
-			printf("response: %x\n", layoffPushUIPanel(header, NULL, 0));
+				printf("Press the STOP button in layoff to resume this application.\n");
+
+				consoleUpdate(NULL);
+
+				while (true)
+				{
+					eventWait(&evt, UINT64_MAX);
+					LayoffUIEvent event;
+					printf("response: %x\n", layoffGetLastUIEvent(&event));
+					
+					if (event.panel == 10) break;
+					
+					printf("Last event is from pane : %d\n", event.panel);
+					if (event.panel)
+						printf("Event data is %lx %lx\n", event.data1, event.data2);
+					consoleUpdate(NULL);
+				}
+			}
 		}
 
         consoleUpdate(NULL);
@@ -119,7 +206,6 @@ int main(int argc, char* argv[])
 
     layoffExit();
 
-    // Deinitialize and clean up resources used by the console (important!)
     consoleExit(NULL);
     return 0;
 }

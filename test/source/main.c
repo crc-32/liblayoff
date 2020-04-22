@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 				rand() % 100, rand() % 100, rand() % 100, rand() % 100);
 
 			LayoffUIHeader header;
-			//Panels are sorted based on they panelID, 0 is not a valid value
+			//Panels are sorted based on their panelID, 0 is not a valid value
 			layoffInitializeUIHeader(&header, 1, LayoffUIKind_TextBlock);
 
 			//For LayoffUIKind_TextBlock the payload is just the ASCII null-terminated string
@@ -70,15 +70,27 @@ int main(int argc, char* argv[])
 			LayoffUIHeader header;
 			LayoffUIButtonList* payload = NULL;
 
+			layoffInitializeUIHeader(&header, 2, LayoffUIKind_TextBlock);
+			printf("response: %x\n", layoffPushUIPanel(header, "Some text next to a button", strlen("Some text next to a button") + 1));
+
+			header = (LayoffUIHeader){0};
+
 			//Note that internally imgui uses the label to identify the control, this means that having two labels that have the same value in different panels will break.
 			//TODO: work on a fix, currently workaround adding #1 according to imgui docs
-			u32 payloadSize = layoffNewButtonList(&header, 2, &payload, 3, "first1", "second2", "third3");
+			u32 payloadSize = layoffNewButtonList(&header, 3, &payload, 9, "first", "second", "third", "fourth", "fith", "sixth", "more", "they never end", "button");
 			if (!payloadSize)
 			{
 				printf("Error !");
 			}
 			else
 			{
+				layoffSetInlineFlag(payload, 0, true); // first comes after the text pane
+				
+				layoffSetInlineFlag(payload, 2, true); // Third is in the same line as second
+				
+				layoffSetInlineFlag(payload, 4, true); // Fifth and sixth are in the same line as third
+				layoffSetInlineFlag(payload, 5, true); 
+				
 				printf("response: %x\n", layoffPushUIPanel(header, payload, payloadSize));
 				layoffFreeButtonList(payload);
 			}
@@ -96,13 +108,15 @@ int main(int argc, char* argv[])
 			LayoffUIHeader header;
 			LayoffUICheckBoxList* payload;
 
-			u32 payloadSize = layoffNewRadioButtonList(&header, 3, &payload, 4, "BUG #23", "BUG #34", "BUG #14", "BUG #12");
+			u32 payloadSize = layoffNewRadioButtonList(&header, 4, &payload, 4, "BUG #23", "BUG #34", "BUG #14", "BUG #12");
 			if (!payloadSize)
 			{
 				printf("Error !");
 			}
 			else
 			{
+				layoffSetInlineFlag(payload, 1, true);
+				layoffSetInlineFlag(payload, 3, true);
 				printf("response: %x\n", layoffPushUIPanel(header, payload, payloadSize));
 				layoffFreeRadioButtonList(payload);
 			}
@@ -112,13 +126,15 @@ int main(int argc, char* argv[])
 			LayoffUIHeader header;
 			LayoffUICheckBoxList* payload;
 
-			u32 payloadSize = layoffNewCheckboxList(&header, 4, &payload, 4, "first", "second", "third", "fourth");
+			u32 payloadSize = layoffNewCheckboxList(&header, 5, &payload, 4, "first", "second", "third", "fourth");
 			if (!payloadSize)
 			{
 				printf("Error !");
 			}
 			else
 			{
+				layoffSetInlineFlag(payload, 1, true);
+				layoffSetInlineFlag(payload, 3, true);
 				printf("response: %x\n", layoffPushUIPanel(header, payload, payloadSize));
 				layoffFreeCheckBoxList(payload);
 			}
@@ -128,7 +144,7 @@ int main(int argc, char* argv[])
 			LayoffUIHeader header;
 			LayoffUIComboBox* payload;
 
-			u32 payloadSize = layoffNewComboBox(&header, 5, &payload, "ComboBox test", 4, "first", "second", "third", "fourth4");
+			u32 payloadSize = layoffNewComboBox(&header, 6, &payload, "ComboBox test", 4, "first", "second", "third", "fourth");
 			if (!payloadSize)
 			{
 				printf("Error !");

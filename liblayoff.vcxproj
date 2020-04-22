@@ -29,7 +29,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\devkitPro\libnx\include;$(NMakeIncludeSearchPath);$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\devkitPro\libnx\nx\include;$(NMakeIncludeSearchPath);$(ProjectDir)include;$(IncludePath)</IncludePath>
     <NMakeIncludeSearchPath>$(NMakeIncludeSearchPath);$(ProjectDir)include;$(IncludePath)</NMakeIncludeSearchPath>
     <NMakeForcedIncludes>$(SolutionDir)cpp.hint;$(NMakeForcedIncludes)</NMakeForcedIncludes>
     <AdditionalOptions>/std:c++17</AdditionalOptions>

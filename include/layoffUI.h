@@ -20,12 +20,21 @@ static inline void layoffInitializeUIHeader(LayoffUIHeader* header, LayoffIdenti
 static inline void layoffFillButtonList(LayoffUIButtonList* payload, u8 count, va_list args)
 {
 	payload->count = count;
+	payload->inlineFlags = 0;
 
 	for (int i = 0; i < count; i++)
 	{
 		strncpy(payload->data[i].str, va_arg(args, const char*), sizeof(LayoffName));
 		payload->data[i].str[sizeof(LayoffName) - 1] = '\0';
 	}
+}
+
+static inline void layoffSetInlineFlag(LayoffUIButtonList* payload, u8 index, bool value)
+{
+	if (value)
+		payload->inlineFlags |= (1ull << index);
+	else 
+		payload->inlineFlags &= ~(1ull << index);
 }
 
 static inline void layoffFreePayload(void* payload)

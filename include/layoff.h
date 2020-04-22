@@ -36,10 +36,6 @@ typedef enum {
 	LayoffUIKind_ComboBox = 3,
 	LayoffUIKind_CheckBoxList = 4,
 	LayoffUIKind_RadioButtonList = 5,
-	//TODO:
-	// combo box
-	// check box
-	// more ?
 } LayoffUIKind;
 
 //TODO: Not sure about keeping this in the API, do we really need non-ascci support ?
@@ -57,6 +53,7 @@ typedef struct
 typedef struct
 {
 	u8 count;
+	u64 inlineFlags; //assuming bits 00001010 second and fourth buttons are on the same line as the previous element (You rarely want the first control to be in the same line)
 	LayoffName data[];
 } PACKED LayoffUIButtonList;
 typedef LayoffUIButtonList LayoffUICheckBoxList;

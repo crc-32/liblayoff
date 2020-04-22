@@ -4,11 +4,13 @@
 static Service layoff_srv;
 static LayoffName clientName;
 
+//TODO: redo the call if ERR_QUEUES_LOCKED
+
 Result layoffInitialize(const char name[16])
 {
     strncpy(clientName.str, name, sizeof(clientName.str) - 1);
 	clientName.str[sizeof(clientName.str) - 1] = '\0';
-	Result rc = smGetService(&layoff_srv, "layoff");;
+	Result rc = smGetService(&layoff_srv, "layoff");
 	if (R_FAILED(rc)) return rc;
 	return serviceDispatchIn(&layoff_srv, LayoffCmdId_SetClientName, clientName);
 }
